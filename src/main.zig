@@ -267,10 +267,10 @@ fn checkPass(arg_inputs: *Layer, arg_weights: Layer) i32 {
     return adjusted;
 }
 
-var inputs: Layer = undefined;
-var weights: Layer = undefined;
-
 pub fn main() anyerror!void {
+    var inputs: Layer = undefined;
+    var weights: Layer = undefined;
+
     print_out("[INFO] creating {s}\n", .{config.DATA_FOLDER});
 
     cwd.makePath(config.DATA_FOLDER) catch |err| {
