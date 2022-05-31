@@ -2,6 +2,7 @@
 
 const std = @import("std");
 const fmt = std.fmt;
+const bufferedWriter = std.io.bufferedWriter;
 const stdout_print = std.io.getStdOut().writer().print;
 const stderr_print = std.io.getStdErr().writer().print;
 const assert = std.debug.assert;
@@ -85,6 +86,9 @@ fn saveLayerAsPpm(arg_layer: Layer, arg_file_path: []const u8) void {
         return;
     };
 
+    var buffered_writer = bufferedWriter(writer);
+    var file_writer = buffered_writer.writer();
+
     var y: i32 = 0;
     while (y < config.HEIGHT * config.PPM_SCALER) : (y += 1) {
         var x: i32 = 0;
@@ -94,13 +98,17 @@ fn saveLayerAsPpm(arg_layer: Layer, arg_file_path: []const u8) void {
                 @setRuntimeSafety(false); // unsafe cast below
                 const pixels: [3]u8 = [_]u8{ @intCast(u8, @floatToInt(i32, floor(@intToFloat(f32, config.PPM_COLOR_INTENSITY) * (1.0 - s)))), @intCast(u8, @floatToInt(i32, floor(@intToFloat(f32, config.PPM_COLOR_INTENSITY) * (1.0 - s)))), @intCast(u8, @floatToInt(i32, floor(@intToFloat(f32, config.PPM_COLOR_INTENSITY) * s))) };
 
-                writer.writeAll(pixels[0..]) catch |err| {
-                    print_err("ERROR: could not write pixel data to file {s} : {}\n", .{ arg_file_path, err });
+                file_writer.writeAll(pixels[0..]) catch |err| {
+                    print_err("ERROR: could not write pixel data to buffer: {}\n", .{ err });
                     return;
                 };
             }
         }
     }
+    buffered_writer.flush() catch |err| {
+       print_err("ERROR: could not write buffered pixel data to file {s} : {}\n", .{ arg_file_path, err });
+       return;
+   };
 }
 
 fn saveLayerAsBin(arg_layer: Layer, arg_file_path: []const u8) void {
