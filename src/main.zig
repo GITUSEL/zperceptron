@@ -257,8 +257,8 @@ fn checkPass(arg_inputs: *Layer, arg_weights: Layer) i32 {
     return adjusted;
 }
 
-var inputs: Layer = zeroes(Layer);
-var weights: Layer = zeroes(Layer);
+var inputs: Layer = undefined;
+var weights: Layer = undefined;
 
 pub fn main() anyerror!void {
     print_out("[INFO] creating {s}\n", .{config.DATA_FOLDER});
@@ -278,6 +278,10 @@ pub fn main() anyerror!void {
         print_err("ERROR: could not chmod directory {s} : {}\n", .{ config.DATA_FOLDER, err });
         return;
     };
+
+    posix_rand.srand(config.START_SEED);
+    randomRectLayer(&inputs);
+    randomRectLayer(&weights);
 
     posix_rand.srand(config.CHECK_SEED);
     var adj: i32 = checkPass(&inputs, weights);

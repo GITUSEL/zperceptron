@@ -19,6 +19,7 @@ const Config = struct {
 
     pub const DATA_FOLDER: []const u8 = "data";
 
+    pub const START_SEED: i32 = 7364;
     pub const TRAIN_SEED: i32 = 69;
     pub const CHECK_SEED: i32 = 420;
 };
