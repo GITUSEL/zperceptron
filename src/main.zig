@@ -106,7 +106,7 @@ fn saveLayerAsPpm(arg_layer: Layer, arg_file_path: []const u8) void {
         while (x < config.WIDTH * config.PPM_SCALER) : (x += 1) {
             const s: f32 = (arg_layer[@intCast(usize, @divFloor(y, config.PPM_SCALER))][@intCast(usize, @divFloor(x, config.PPM_SCALER))] - min) / (max - min);
             {
-                const pixels: [3]u8 = [_]u8{ @intCast(u8, @floatToInt(i32, floor(@intToFloat(f32, config.PPM_COLOR_INTENSITY) * (1.0 - s)))), @intCast(u8, @floatToInt(i32, floor(@intToFloat(f32, config.PPM_COLOR_INTENSITY) * (1.0 - s)))), @intCast(u8, @floatToInt(i32, floor(@intToFloat(f32, config.PPM_COLOR_INTENSITY) * s))) };
+                const pixels: [3]u8 = [_]u8{ @intCast(u8, @floatToInt(i32, floor(@intToFloat(f32, config.PPM_COLOR_INTENSITY) * (1.0 - s)))), @intCast(u8, @floatToInt(i32, floor(@intToFloat(f32, config.PPM_COLOR_INTENSITY) * (1.0 - s) * s))), @intCast(u8, @floatToInt(i32, floor(@intToFloat(f32, config.PPM_COLOR_INTENSITY) * s))) };
 
                 file_writer.writeAll(pixels[0..]) catch |err| {
                     print_err("ERROR: could not write pixel data to buffer: {}\n", .{err});
