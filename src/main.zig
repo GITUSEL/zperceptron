@@ -171,7 +171,7 @@ fn randomRectLayer(arg_layer: *Layer) void {
     if (w < 2) w = 2;
     w = randRange(1, w);
 
-    var h: i32 = config.HEIGHT - x; // bug
+    var h: i32 = config.HEIGHT - y;
     if (h < 2) h = 2;
     h = randRange(1, h);
 
