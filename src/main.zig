@@ -86,6 +86,17 @@ fn saveLayerAsPpm(arg_layer: Layer, arg_file_path: []const u8) void {
         return;
     };
 
+    var min: f32 = math.floatMax(f32);
+    var max: f32 = math.floatMin(f32);
+    comptime var i = 0;
+    inline while (i < config.HEIGHT) : (i += 1) {
+        comptime var j = 0;
+        inline while (j < config.WIDTH) : (j += 1) {
+            if (arg_layer[i][j] < min) min = arg_layer[i][j];
+            if (arg_layer[i][j] > max) max = arg_layer[i][j];
+        }
+    }
+
     var buffered_writer = bufferedWriter(writer);
     var file_writer = buffered_writer.writer();
 
@@ -93,22 +104,21 @@ fn saveLayerAsPpm(arg_layer: Layer, arg_file_path: []const u8) void {
     while (y < config.HEIGHT * config.PPM_SCALER) : (y += 1) {
         var x: i32 = 0;
         while (x < config.WIDTH * config.PPM_SCALER) : (x += 1) {
-            const s: f32 = (arg_layer[@intCast(usize, @divFloor(y, config.PPM_SCALER))][@intCast(usize, @divFloor(x, config.PPM_SCALER))] + config.PPM_RANGE) / (2.0 * config.PPM_RANGE);
+            const s: f32 = (arg_layer[@intCast(usize, @divFloor(y, config.PPM_SCALER))][@intCast(usize, @divFloor(x, config.PPM_SCALER))] - min) / (max - min);
             {
-                @setRuntimeSafety(false); // unsafe cast below
                 const pixels: [3]u8 = [_]u8{ @intCast(u8, @floatToInt(i32, floor(@intToFloat(f32, config.PPM_COLOR_INTENSITY) * (1.0 - s)))), @intCast(u8, @floatToInt(i32, floor(@intToFloat(f32, config.PPM_COLOR_INTENSITY) * (1.0 - s)))), @intCast(u8, @floatToInt(i32, floor(@intToFloat(f32, config.PPM_COLOR_INTENSITY) * s))) };
 
                 file_writer.writeAll(pixels[0..]) catch |err| {
-                    print_err("ERROR: could not write pixel data to buffer: {}\n", .{ err });
+                    print_err("ERROR: could not write pixel data to buffer: {}\n", .{err});
                     return;
                 };
             }
         }
     }
     buffered_writer.flush() catch |err| {
-       print_err("ERROR: could not write buffered pixel data to file {s} : {}\n", .{ arg_file_path, err });
-       return;
-   };
+        print_err("ERROR: could not write buffered pixel data to file {s} : {}\n", .{ arg_file_path, err });
+        return;
+    };
 }
 
 fn saveLayerAsBin(arg_layer: Layer, arg_file_path: []const u8) void {
@@ -146,20 +156,20 @@ fn feedForward(arg_inputs: Layer, arg_weights: Layer) f32 {
 }
 
 fn addInputsToWeights(arg_inputs: Layer, arg_weights: *Layer) void {
-    var y: usize = 0;
-    while (y < config.HEIGHT) : (y += 1) {
-        var x: usize = 0;
-        while (x < config.WIDTH) : (x += 1) {
+    comptime var y: usize = 0;
+    inline while (y < config.HEIGHT) : (y += 1) {
+        comptime var x: usize = 0;
+        inline while (x < config.WIDTH) : (x += 1) {
             arg_weights[y][x] += arg_inputs[y][x];
         }
     }
 }
 
 fn subInputsFromWeights(arg_inputs: Layer, arg_weights: *Layer) void {
-    var y: usize = 0;
-    while (y < config.HEIGHT) : (y += 1) {
-        var x: usize = 0;
-        while (x < config.WIDTH) : (x += 1) {
+    comptime var y: usize = 0;
+    inline while (y < config.HEIGHT) : (y += 1) {
+        comptime var x: usize = 0;
+        inline while (x < config.WIDTH) : (x += 1) {
             arg_weights[y][x] -= arg_inputs[y][x];
         }
     }
