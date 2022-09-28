@@ -3,14 +3,14 @@
 const std = @import("std");
 const fmt = std.fmt;
 const bufferedWriter = std.io.bufferedWriter;
-const stdout_print = std.io.getStdOut().writer().print;
-const stderr_print = std.io.getStdErr().writer().print;
+const stdout_writer = std.io.getStdOut().writer();
+const stderr_writer = std.io.getStdErr().writer();
 const assert = std.debug.assert;
 const todo = std.debug.todo;
 const mem = std.mem;
 const zeroes = mem.zeroes;
 const File = std.fs.File;
-const Dir = std.fs.Dir;
+const IterableDir = std.fs.IterableDir;
 const cwd = std.fs.cwd();
 const math = std.math;
 const floor = math.floor;
@@ -22,11 +22,11 @@ const config = @import("config.zig");
 const Layer = [config.HEIGHT][config.WIDTH]f32;
 
 inline fn print_out(comptime format: []const u8, args: anytype) void {
-    stdout_print(format, args) catch {};
+    stdout_writer.print(format, args) catch {};
 }
 
 inline fn print_err(comptime format: []const u8, args: anytype) void {
-    stderr_print(format, args) catch {};
+    stderr_writer.print(format, args) catch {};
 }
 
 inline fn clampi(arg_x: i32, arg_low: i32, arg_high: i32) i32 {
@@ -278,7 +278,7 @@ pub fn main() anyerror!void {
         return;
     };
 
-    var dataFolder: Dir = cwd.openDir(config.DATA_FOLDER, .{ .iterate = true }) catch |err| {
+    var dataFolder: IterableDir = cwd.openIterableDir(config.DATA_FOLDER, .{}) catch |err| {
         print_err("ERROR: could not open directory {s} : {}\n", .{ config.DATA_FOLDER, err });
         return;
     };
